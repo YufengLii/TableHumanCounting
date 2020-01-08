@@ -103,10 +103,34 @@ def FinalMainBodyRect(UseUserColor, image, FinalHumanKpCoorList):
     return image
 
 
+def drawEllipseCalibtarion(ETableCaliInfo, TableAround, CurrFrame):
+    cv2.ellipse(
+        CurrFrame,
+        ((int)(ETableCaliInfo['x_center']), (int)(ETableCaliInfo['y_center'])),
+        (int(ETableCaliInfo['long_axis']), int(ETableCaliInfo['short_axis'])),
+        math.degrees(ETableCaliInfo['theta']), 0, 360, (0, 255, 0), 3)
+
+    cv2.ellipse(CurrFrame,
+                ((int)(ETableCaliInfo['x_center'] +
+                       TableAround[str(ETableCaliInfo['tableID'])][0]),
+                 (int)(ETableCaliInfo['y_center'] +
+                       TableAround[str(ETableCaliInfo['tableID'])][1])),
+                (int(ETableCaliInfo['long_axis'] *
+                     TableAround[str(ETableCaliInfo['tableID'])][2]),
+                 int(ETableCaliInfo['short_axis'] *
+                     TableAround[str(ETableCaliInfo['tableID'])][3])),
+                math.degrees(ETableCaliInfo['theta']), 0, 360, (0, 255, 0), 3)
+    cv2.putText(CurrFrame, "Table " + (str)(ETableCaliInfo['tableID']),
+                ((int)(ETableCaliInfo['x_center']),
+                 (int)(ETableCaliInfo['y_center'])), cv2.FONT_HERSHEY_SIMPLEX,
+                1, (0, 255, 0), 2)
+    return CurrFrame
+
+
 def drawEllipseDebug(CurrFrame, lables, overlapthreshhold,
                      FinalHumanKpCoorList, OverLapPercentageList,
-                     tableHumanKpCoorListHWthresh, TrackingMainPostionNP,
-                     ETableCaliInfo):
+                     BetweenElipPercentageList, tableHumanKpCoorListHWthresh,
+                     TrackingMainPostionNP, ETableCaliInfo, FinalKneeCoorList):
 
     track_colors = [(0, 0, 255), (0, 255, 0), (255, 127, 255), (255, 0, 0),
                     (255, 255, 0), (127, 127, 255), (255, 0, 255),
@@ -141,8 +165,34 @@ def drawEllipseDebug(CurrFrame, lables, overlapthreshhold,
                     ((int)(DrawPercentage[0]), (int)(DrawPercentage[1])),
                     cv2.FONT_HERSHEY_SIMPLEX, 2, track_colors[-4], 4)
 
+    for i in range(len(BetweenElipPercentageList)):
+
+        RShoulderFinalCoor = FinalHumanKpCoorList[i][4]
+        LShoulderFinalCoor = FinalHumanKpCoorList[i][5]
+        MidShoulderFinalCoor = (RShoulderFinalCoor + LShoulderFinalCoor) / 2
+        MidFinalCoor = FinalHumanKpCoorList[i][3]
+        DrawPercentage = (MidShoulderFinalCoor + MidFinalCoor) / 2
+        cv2.putText(CurrFrame,
+                    str(int(BetweenElipPercentageList[i])) + "%",
+                    ((int)(DrawPercentage[0]), (int)(DrawPercentage[1] + 50)),
+                    cv2.FONT_HERSHEY_SIMPLEX, 2, track_colors[-5], 4)
+
     FinalMainBodyRect(track_colors[-3], CurrFrame,
                       tableHumanKpCoorListHWthresh)
+
+    for i in range(FinalKneeCoorList.shape[0]):
+        cv2.circle(
+            CurrFrame,
+            (int(FinalKneeCoorList[i][0]), int(FinalKneeCoorList[i][1])), 10,
+            track_colors[lables[i] + 1], 2)
+
+    # if ETableCaliInfo['tableID'] == 12:
+    #     cv2.ellipse(CurrFrame, ((int)(ETableCaliInfo['x_center'] + 25),
+    #                             (int)(ETableCaliInfo['y_center'] + 120)),
+    #                 (int(2.2 * ETableCaliInfo['long_axis']),
+    #                  int(2.2 * ETableCaliInfo['short_axis'])),
+    #                 math.degrees(ETableCaliInfo['theta']), 0, 360, (0, 255, 0),
+    #                 3)
 
     cv2.putText(
         CurrFrame, "Table" + str(ETableCaliInfo['tableID']) +
