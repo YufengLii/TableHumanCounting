@@ -9,3 +9,4 @@
 ```pip install -r requirements.txt```
 
 ## Run Demo
+```python EllipseTable.py```
