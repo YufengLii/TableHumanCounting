@@ -2,7 +2,7 @@
 确定桌子人数，餐桌数人
 
 
-[![Watch the video](../data/v24.JPG)](https://www.bilibili.com/video/av82582314/)
+[![Watch the video](./data/v24.JPG)](https://www.bilibili.com/video/av82582314/)
 
 
 ## Setup
