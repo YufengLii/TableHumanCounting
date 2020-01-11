@@ -1,6 +1,10 @@
 # TableHumanCounting
 确定桌子人数，餐桌数人
 
+
+[![Watch the video](https://raw.github.com/GabLeRoux/WebMole/master/ressources/WebMole_Youtube_Video.png)](https://www.bilibili.com/video/av82582314/)
+
+
 ## Setup
 1. Create virtual python env use (do not use anaconda)
 ```virtualenv -p /usr/bin/python3.x TableHumanNum```
