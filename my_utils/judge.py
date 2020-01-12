@@ -1,5 +1,3 @@
-# -*- coding: utf-8 -*-
-
 from my_utils import geometry
 import math
 import numpy as np
@@ -27,31 +25,29 @@ def UpdateTableHumanKPTimeList(TableHumanKPTimeList, KeypointListMaxLength,
         if len(CurrTableHumanKP['front']) == 0:
             TableHumanKPTimeList[str(
                 STableCaliInfo['tableID'])]['front'] = []
-            print('no human Table',
-                str(STableCaliInfo['tableID']),
-                'Front, Table List Reset',
-                sep=' ')
+            # print('no human Table',
+            #     str(STableCaliInfo['tableID']),
+            #     'Front, Table List Reset',
+            #     sep=' ')
         else:
             TableHumanKPTimeList[str(
                 STableCaliInfo['tableID'])]['front'].append(
                 CurrTableHumanKP['front'])
-    else:
-        print(" do nothing ")
+
 
     if len(TableHumanKPTimeList[str(STableCaliInfo['tableID'])]
             ['front']) == KeypointListMaxLength:
-        print('桌子区域前方有人驻留，进入聚类分�?')
-
-        print('Table',
-                str(STableCaliInfo['tableID']),
-                'Front List full Judge Ready!!!',
-                sep=' ')
+        print('桌子区域前方有人驻留，进入聚类')
+        # print('Table',
+        #         str(STableCaliInfo['tableID']),
+        #         'Front List full Judge Ready!!!',
+        #         sep=' ')
         FrontReadyAnalyze = True
-    else:
-        print('Table',
-                str(STableCaliInfo['tableID']),
-                'Front List not full Judge not Ready!!!',
-                sep=' ')
+    # else:
+    #     print('Table',
+    #             str(STableCaliInfo['tableID']),
+    #             'Front List not full Judge not Ready!!!',
+    #             sep=' ')
 
 
     if STableCaliInfo['back_top_left'] != [0, 0]:
@@ -59,41 +55,39 @@ def UpdateTableHumanKPTimeList(TableHumanKPTimeList, KeypointListMaxLength,
         if len(CurrTableHumanKP['back']) == 0:
             TableHumanKPTimeList[str(
                 STableCaliInfo['tableID'])]['back'] = []
-            print('no human Table',
-                str(STableCaliInfo['tableID']),
-                'Back, Table List Reset',
-                sep=' ')
+            # print('no human Table',
+            #     str(STableCaliInfo['tableID']),
+            #     'Back, Table List Reset',
+            #     sep=' ')
         else:
             TableHumanKPTimeList[str(
                 STableCaliInfo['tableID'])]['back'].append(
                     CurrTableHumanKP['back'])
-    else:
-        print(" do nothing ")
+
 
     if len(TableHumanKPTimeList[str(STableCaliInfo['tableID'])]
             ['back']) == KeypointListMaxLength:
-        print('桌子区域后方有人驻留，进入聚类分�?')
-        print('Table',
-                str(STableCaliInfo['tableID']),
-                'Back List full Judge Ready!!!',
-                sep=' ')
+        print('桌子区域后方有人驻留，进入聚类')
+        # print('Table',
+        #         str(STableCaliInfo['tableID']),
+        #         'Back List full Judge Ready!!!',
+        #         sep=' ')
         BackReadyAnalyze = True
 
-    else:
-
-        print('Table',
-                str(STableCaliInfo['tableID']),
-                'Back List not full Judge not Ready!!!',
-                sep=' ')
+    # else:
+    #     print('Table',
+    #             str(STableCaliInfo['tableID']),
+    #             'Back List not full Judge not Ready!!!',
+    #             sep=' ')
 
     return TableHumanKPTimeList, FrontReadyAnalyze, BackReadyAnalyze
 
 
-def IsInSquareTableFront(STableCaliInfo, usedKeyPointsList):
+def IsInSquareTF(STableCaliInfo, usedKeyPointsList):
     iNTable = False
 
-    RShoulder = usedKeyPointsList[4]
-    LShoulder = usedKeyPointsList[5]
+    RShoulder = usedKeyPointsList[0]
+    LShoulder = usedKeyPointsList[1]
 
     table_front = [(STableCaliInfo['front_top_left'][0],
                     STableCaliInfo['front_top_left'][1]),
@@ -114,11 +108,11 @@ def IsInSquareTableFront(STableCaliInfo, usedKeyPointsList):
     return iNTable
 
 
-def IsInSquareTableBack(STableCaliInfo, usedKeyPointsList):
+def IsInSquareTB(STableCaliInfo, usedKeyPointsList):
     iNTable = False
 
-    RShoulder = usedKeyPointsList[4]
-    LShoulder = usedKeyPointsList[5]
+    RShoulder = usedKeyPointsList[0]
+    LShoulder = usedKeyPointsList[1]
 
     table_back = [(STableCaliInfo['back_top_left'][0],
                    STableCaliInfo['back_top_left'][1]),
@@ -159,8 +153,8 @@ def SquareTrackingKpExtract(TableHumanKPTimeList):
     for FrameKP in TableHumanKPTimeList:
         for humanKP in FrameKP:
 
-            RShoulder = np.array(humanKP[4][0:2])
-            LShoulder = np.array(humanKP[5][0:2])
+            RShoulder = np.array(humanKP[0][0:2])
+            LShoulder = np.array(humanKP[1][0:2])
 
             TrackingMainPostionNP.append([(RShoulder[0] + LShoulder[0]) / 2,
                                           (RShoulder[1] + LShoulder[1]) / 2])

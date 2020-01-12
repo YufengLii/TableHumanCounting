@@ -96,3 +96,56 @@ TableHumanKPTimeList = {
         'back': []
     },
 }
+
+
+
+TableHumanNumList = {
+    '1': {
+        'front': 0,
+        'back': 0
+    },
+    '2': {
+        'front': 0,
+        'back': 0
+    },
+    '3': {
+        'front': 0,
+        'back': 0
+    },
+    '4': {
+        'front': 0,
+        'back': 0
+    },
+    '5': {
+        'front': 0,
+        'back': 0
+    },
+    '6': {
+        'front': 0,
+        'back': 0
+    },
+    '8': {
+        'front': 0,
+        'back': 0
+    },
+    '9': {
+        'front': 0,
+        'back': 0
+    },
+    '20': {
+        'front': 0,
+        'back': 0
+    },
+    '21': {
+        'front': 0,
+        'back': 0
+    },
+    '23': {
+        'front': 0,
+        'back': 0
+    },
+    '24': {
+        'front': 0,
+        'back': 0
+    },
+}

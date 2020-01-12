@@ -78,29 +78,46 @@ def get_cali_data(working_cameraID):
     return camera_info_lists, url_lists
 
 
-def drawSquareTableDebug(image, TrackingKp, lables):
+def drawSquareTableDebug(image, TrackingKp, KpList, lables, STable, FrontBack):
 
     track_colors = [(0, 0, 255), (0, 255, 0), (255, 127, 255), (255, 0, 0),
                     (255, 255, 0), (127, 127, 255), (255, 0, 255),
                     (127, 0, 255), (127, 0, 127), (127, 10, 255),
                     (0, 255, 127)]
-
     for i in range(TrackingKp.shape[0]):
-        # print(TrackingMainPostionNP[i])
-        # pprint(lables[i])
-        # 画出用于聚类的时间序列关键点
-        cv2.circle(image, (int(
-            TrackingKp[i][0]), int(TrackingKp[i][1])), 5,
+
+        RShoulder = KpList[i][0]
+        LShoulder = KpList[i][1]
+
+        cv2.circle(image, (int(TrackingKp[i][0]), int(TrackingKp[i][1])), 5,
                    track_colors[lables[i] + 1], -1)
-        # 画出聚类分类结果
+
+        cv2.circle(image, (int(RShoulder[0]), int(RShoulder[1])), 5,
+                   track_colors[5], -1)
+
+        cv2.circle(image, (int(LShoulder[0]), int(LShoulder[1])), 5,
+                   track_colors[5], -1)
         cv2.putText(image, str(lables[i]),
-                    (int(TrackingKp[i][0] + 30),
-                     int(TrackingKp[i][1])),
+                    (int(TrackingKp[i][0] + 30), int(TrackingKp[i][1])),
                     cv2.FONT_HERSHEY_SIMPLEX, 1, track_colors[lables[i] + 1],
                     4)
+
+    if FrontBack == 'Front':
+
+        cv2.putText(
+            image, "Table " + str(STable['tableID']) +
+            " Front Human num is: " + str(max(lables) + 1),
+            (int(STable['front_top_left'][0]),
+             int(STable['front_top_left'][1] + 50)), cv2.FONT_HERSHEY_SIMPLEX,
+            1, track_colors[7], 4)
+    else:
+        cv2.putText(
+            image, "Table " + str(STable['tableID']) + " Back Human num is: " +
+            str(max(lables) + 1), (int(STable['back_top_left'][0]),
+                                   int(STable['back_top_left'][1] + 50)),
+            cv2.FONT_HERSHEY_SIMPLEX, 1, track_colors[7], 4)
+
     return image
-
-
 
 
 def FinalMainBodyRect(UseUserColor, image, FinalHumanKpCoorList):
