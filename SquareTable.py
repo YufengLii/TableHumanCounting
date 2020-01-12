@@ -7,7 +7,6 @@ import multiprocessing as mp
 from modules.dbutil import MySQLPlugin
 from modules import mqutil
 from my_utils import cvdraw, judge, SquareConfig
-from pprint import pprint
 import json
 
 try:
@@ -19,13 +18,6 @@ except ImportError as e:
 
 with open("./data/squareCali.txt", 'r') as f:
     SquareCaliDict = json.loads(f.read())
-
-camera_info_lists = SquareConfig.camera_info_lists
-url_lists = SquareConfig.url_lists
-
-# print('Table calibration info: ')
-# pprint(camera_info_lists)
-# pprint(url_lists)
 
 
 def image_put(q, Video_DIR, cameraID):
@@ -48,7 +40,7 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
         sys.exit(-1)
 
     TableHumanKPTimeList = SquareConfig.TableHumanKPTimeList
-
+    TableHumanNumList = SquareConfig.TableHumanNumList
     while True:
 
         for q in queue_list:
@@ -66,96 +58,76 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
             frame_keypoints = datum.poseKeypoints
 
             # human in image
-            for STableCaliInfo in CurrCameraSquareCali:
-                cvdraw.drawSquareTableInfo(CurrFrame, STableCaliInfo)
-                if len(frame_keypoints.shape) == 0:
-                    print("no human detected")
-                    TableHumanKPTimeList[str(
-                        STableCaliInfo['tableID'])]['front'] = []
-                    TableHumanKPTimeList[str(
-                        STableCaliInfo['tableID'])]['back'] = []
-                    continue
-                CurrTableHumanKP = {'back': [], 'front': []}
+            for STable in CurrCameraSquareCali:
 
+                cvdraw.drawSquareTableInfo(CurrFrame, STable)
+
+                TableID = str(STable['tableID'])
+                PerTableHumanNum = TableHumanNumList[TableID][
+                    'front'] + TableHumanNumList[TableID]['back']
+
+                if len(frame_keypoints.shape) == 0:
+                    TableHumanKPTimeList[TableID]['front'] = []
+                    TableHumanKPTimeList[TableID]['back'] = []
+                    continue
+
+                CurrTableHumanKP = {'back': [], 'front': []}
                 for human_keypoints in frame_keypoints:
 
-                    Neck = human_keypoints[1].tolist()
-                    MidHip = human_keypoints[8].tolist()
-                    RHip = human_keypoints[9].tolist()
-                    LHip = human_keypoints[12].tolist()
-                    RShoulder = human_keypoints[2].tolist()
-                    LShoulder = human_keypoints[5].tolist()
-
                     usedKeyPointsList = [
-                        Neck, RHip, LHip, MidHip, RShoulder, LShoulder
+                        human_keypoints[2].tolist(),
+                        human_keypoints[5].tolist()
                     ]
 
-                    if judge.IsInSquareTableFront(STableCaliInfo,
-                                                  usedKeyPointsList) is True:
+                    if judge.IsInSquareTF(STable, usedKeyPointsList) is True:
                         CurrTableHumanKP['front'].append(usedKeyPointsList)
-                        cv2.circle(CurrFrame,
-                                   (int(LShoulder[0]), int(LShoulder[1])), 5,
-                                   (0, 0, 255), -1)
-                        cv2.circle(CurrFrame,
-                                   (int(RShoulder[0]), int(RShoulder[1])), 5,
-                                   (0, 0, 255), -1)
 
-                    if judge.IsInSquareTableBack(STableCaliInfo,
-                                                 usedKeyPointsList) is True:
+                    if judge.IsInSquareTB(STable, usedKeyPointsList) is True:
                         CurrTableHumanKP['back'].append(usedKeyPointsList)
-                        cv2.circle(CurrFrame,
-                                   (int(LShoulder[0]), int(LShoulder[1])), 5,
-                                   (0, 0, 255), -1)
-                        cv2.circle(CurrFrame,
-                                   (int(RShoulder[0]), int(RShoulder[1])), 5,
-                                   (0, 0, 255), -1)
-                TableHumanKPTimeList, FrontReadyAnalyze, BackReadyAnalyze = judge.UpdateTableHumanKPTimeList(
-                    TableHumanKPTimeList, SquareConfig.KeypointListMaxLength,
-                    CurrTableHumanKP, STableCaliInfo)
 
-                if FrontReadyAnalyze is True:
-                    FrontHumanKPTimeList = TableHumanKPTimeList[str(
-                        STableCaliInfo['tableID'])]['front']
-                    FrontTrackingKp, FrontTrackingWholekp = judge.SquareTrackingKpExtract(
+                TableHumanKPTimeList, FrontReady, BackReady = judge.UpdateTableHumanKPTimeList(
+                    TableHumanKPTimeList, SquareConfig.KeypointListMaxLength,
+                    CurrTableHumanKP, STable)
+
+                if FrontReady is True:
+                    FrontHumanKPTimeList = TableHumanKPTimeList[TableID][
+                        'front']
+                    FrontTrackingKp, FrontKpList = judge.SquareTrackingKpExtract(
                         FrontHumanKPTimeList)
                     Flabels, Fn_clusters_ = judge.DBscanCluster(
                         FrontTrackingKp, SquareConfig.ClusterEps,
                         SquareConfig.ClusterMinSample)
+
+                    TableHumanNumList[TableID]['front'] = max(Flabels) + 1
+                    del TableHumanKPTimeList[TableID]['front'][0]
+
                     CurrFrame = cvdraw.drawSquareTableDebug(
-                        CurrFrame, FrontTrackingKp, Flabels)
+                        CurrFrame, FrontTrackingKp, FrontKpList, Flabels,
+                        STable, 'Front')
 
-                    if Fn_clusters_ > 1:
-                        print("Table " + str(STableCaliInfo['tableID']) +
-                              " Front human num is�� " + str(Fn_clusters_ - 1))
-                    else:
-                        print("Moving")
-                    del TableHumanKPTimeList[str(
-                        STableCaliInfo['tableID'])]['front'][0]
-
-                if BackReadyAnalyze is True:
-                    BackHumanKPTimeList = TableHumanKPTimeList[str(
-                        STableCaliInfo['tableID'])]['back']
-                    BackTrackingKp, BackTrackingWholekp = judge.SquareTrackingKpExtract(
+                if BackReady is True:
+                    BackHumanKPTimeList = TableHumanKPTimeList[TableID]['back']
+                    BackTrackingKp, BackKpList = judge.SquareTrackingKpExtract(
                         BackHumanKPTimeList)
                     Blabels, Bn_clusters_ = judge.DBscanCluster(
                         BackTrackingKp, SquareConfig.ClusterEps,
                         SquareConfig.ClusterMinSample)
 
-                    CurrFrame = cvdraw.drawSquareTableDebug(
-                        CurrFrame, BackTrackingKp, Blabels)
+                    TableHumanNumList[TableID]['back'] = max(Blabels) + 1
+                    del TableHumanKPTimeList[TableID]['back'][0]
 
-                    if Bn_clusters_ > 1:
-                        print("Table " + str(STableCaliInfo['tableID']) +
-                              " Back human num is�� " + str(Bn_clusters_ - 1))
-                    else:
-                        print("Moving")
-                    del TableHumanKPTimeList[str(
-                        STableCaliInfo['tableID'])]['back'][0]
+                    CurrFrame = cvdraw.drawSquareTableDebug(
+                        CurrFrame, BackTrackingKp, BackKpList, Blabels, STable,
+                        "Back")
+                CurrTableHumanNum = TableHumanNumList[TableID][
+                    'back'] + TableHumanNumList[TableID]['front']
+                if CurrTableHumanNum != PerTableHumanNum:
+                    print("DB Update")
 
             cv2.imshow(str(CurrCameraID), CurrFrame)
             cv2.waitKey(1)
 
-            print('------------------------------------------')
+            print('\n\n------------------------------------------')
 
 
 def run_multi_camera():
