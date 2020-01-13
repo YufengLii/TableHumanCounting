@@ -38,7 +38,7 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
         print("opWrapper init error!!!")
         print(e)
         sys.exit(-1)
-
+    mysql_q = mqutil.RSMQueue('cvstats')
     TableHumanKPTimeList = SquareConfig.TableHumanKPTimeList
     TableHumanNumList = SquareConfig.TableHumanNumList
     while True:
@@ -123,7 +123,12 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
                     'back'] + TableHumanNumList[TableID]['front']
                 if CurrTableHumanNum != PerTableHumanNum:
                     print("DB Update")
-
+                    msg_str = {
+                        'areaID': TableID,
+                        'timestamp': int(time.time() * 1000),
+                        'num': max(Blabels)+1,
+                    }
+                    mysql_q.publish(json.dumps(msg_str))
             cv2.imshow(str(CurrCameraID), CurrFrame)
             cv2.waitKey(1)
 

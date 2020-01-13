@@ -1,13 +1,13 @@
 from my_utils import cvdraw
 
 op_params = dict()
-op_params["model_folder"] = "/home/feng/Documents/openpose/models/"
+op_params["model_folder"] = "/home/cv/Documents/lf/1225/openpose/models/"
 op_params["model_pose"] = "BODY_25"
 op_params["net_resolution"] = "-1x368"
 op_params["num_gpu"] = 1
-op_params["num_gpu_start"] = 0
+op_params["num_gpu_start"] = 1
 
-opPython = '/home/feng/Documents/openpose/build/python'
+opPython = '/home/cv/Documents/lf/1225/openpose/build/python'
 
 INDEBUG = True
 # camera_ID_List = [105, 106, 107, 108, 110, 112, 114, 119]
@@ -21,20 +21,20 @@ INDEBUG = True
 #     "./data/114.mp4",
 #     "./data/119.mp4",
 # ]
+working_cameraID = [105, 106, 107, 108, 110, 112, 114, 119]
 
-
+camera_info_lists, url_lists = cvdraw.get_cali_data_from_file(working_cameraID)
 camera_ID_List = [105, 108]
 Video_DIR_List = [
-    "./data/105.mp4",
-    "./data/108.mp4",
+    url_lists['105'],
+    url_lists['108'],
+
 ]
 
 KeypointListMaxLength = 10
-working_cameraID = [105, 106, 107, 108, 110, 112, 114, 119]
 ClusterEps = 150
 ClusterMinSample = 8
 
-camera_info_lists, url_lists = cvdraw.get_cali_data_from_file(working_cameraID)
 
 cut = {
     '105': [1000, 2440, 0, 1440, 90],
