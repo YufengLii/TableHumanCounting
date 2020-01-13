@@ -109,10 +109,11 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
 
                     TableHumanNumList[TableID]['front'] = max(Flabels) + 1
                     del TableHumanKPTimeList[TableID]['front'][0]
+                    if SquareConfig.INDEBUG is True:
 
-                    CurrFrame = cvdraw.drawSquareTableDebug(
-                        CurrFrame, FrontTrackingKp, FrontKpList, Flabels,
-                        STable, 'Front')
+                        CurrFrame = cvdraw.drawSquareTableDebug(
+                            CurrFrame, FrontTrackingKp, FrontKpList, Flabels,
+                            STable, 'Front')
 
                 if BackReady is True:
                     BackHumanKPTimeList = TableHumanKPTimeList[TableID]['back']
@@ -124,10 +125,10 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
 
                     TableHumanNumList[TableID]['back'] = max(Blabels) + 1
                     del TableHumanKPTimeList[TableID]['back'][0]
-
-                    CurrFrame = cvdraw.drawSquareTableDebug(
-                        CurrFrame, BackTrackingKp, BackKpList, Blabels, STable,
-                        "Back")
+                    if SquareConfig.INDEBUG is True:
+                        CurrFrame = cvdraw.drawSquareTableDebug(
+                            CurrFrame, BackTrackingKp, BackKpList, Blabels, STable,
+                            "Back")
                 CurrTableHumanNum = TableHumanNumList[TableID][
                     'back'] + TableHumanNumList[TableID]['front']
                 if CurrTableHumanNum != PerTableHumanNum:
@@ -138,8 +139,10 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
                         'num': max(Blabels)+1,
                     }
                     mysql_q.publish(json.dumps(msg_str))
-            cv2.imshow(str(CurrCameraID), CurrFrame)
-            cv2.waitKey(1)
+            if SquareConfig.INDEBUG is True:
+
+                cv2.imshow(str(CurrCameraID), CurrFrame)
+                cv2.waitKey(1)
 
             print('\n\n------------------------------------------')
 
@@ -147,7 +150,7 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
 def run_multi_camera():
 
     mp.set_start_method(method='spawn')  # init
-    queues = [mp.Queue(maxsize=3) for _ in SquareConfig.Video_DIR_List]
+    queues = [mp.Queue(maxsize=5) for _ in SquareConfig.Video_DIR_List]
 
     processes = [
         mp.Process(target=inwhichTable,

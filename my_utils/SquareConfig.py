@@ -9,7 +9,7 @@ op_params["num_gpu_start"] = 1
 
 opPython = '/home/cv/Documents/lf/1225/openpose/build/python'
 
-INDEBUG = True
+INDEBUG = False
 # camera_ID_List = [105, 106, 107, 108, 110, 112, 114, 119]
 # Video_DIR_List = [
 #     "./data/105.mp4",
@@ -21,14 +21,18 @@ INDEBUG = True
 #     "./data/114.mp4",
 #     "./data/119.mp4",
 # ]
-working_cameraID = [105, 106, 107, 108, 110, 112, 114, 119]
+working_cameraID = [105, 106, 107, 108, 112, 114, 119]
 
 camera_info_lists, url_lists = cvdraw.get_cali_data_from_file(working_cameraID)
-camera_ID_List = [105, 108]
+camera_ID_List = [105, 106, 107, 108, 112, 114, 119]
 Video_DIR_List = [
     url_lists['105'],
+    url_lists['106'],
+    url_lists['107'],
     url_lists['108'],
-
+    url_lists['112'],
+    url_lists['114'],
+    url_lists['119'],
 ]
 
 KeypointListMaxLength = 10
