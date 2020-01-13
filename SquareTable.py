@@ -41,6 +41,15 @@ def inwhichTable(queue_list, Video_DIR_List, camera_ID_List):
     mysql_q = mqutil.RSMQueue('cvstats')
     TableHumanKPTimeList = SquareConfig.TableHumanKPTimeList
     TableHumanNumList = SquareConfig.TableHumanNumList
+
+    for key, _ in TableHumanNumList.items():
+        msg_str = {
+            'areaID': key,
+            'timestamp': int(time.time() * 1000),
+            'num': 0,
+        }
+        mysql_q.publish(json.dumps(msg_str))        
+
     while True:
 
         for q in queue_list:
